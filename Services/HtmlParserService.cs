@@ -8,9 +8,34 @@ namespace Dfreeze.Services
 {
     public class HtmlParserService : IHtmlParserService
     {
-        public bool IsLoginPage(string html)
+        public PageType GetPageType(string html)
         {
-            return html?.Contains("<form method=\"post\" action=\"LoginPage.aspx\" id=\"LoginForm\" autocomplete=\"off\">") ?? false;
+            if (String.IsNullOrEmpty(html))
+            {
+                return PageType.Unknown;
+            }
+            else
+            {
+                var isLoginPage = html.Contains("<form method=\"post\" action=\"LoginPage.aspx\" id=\"LoginForm\" autocomplete=\"off\">");
+                if (isLoginPage)
+                {
+                    return PageType.Login;
+                }
+
+                var isInvalidRoomIdPage = html.Contains("The specified room did not exist");
+                if (isLoginPage)
+                {
+                    return PageType.InvalidRoomId;
+                }
+
+                var isFreezersInfoPage = html.Contains("dataList_toggle");
+                if (isFreezersInfoPage)
+                {
+                    return PageType.FreezersInfo;
+                }
+
+                return PageType.Unknown;
+            }
         }
 
         public IEnumerable<FreezerModel> Parse(string html)
@@ -18,7 +43,8 @@ namespace Dfreeze.Services
             var doc = new HtmlDocument();
             doc.LoadHtml(html);
 
-            var result = from info in Constants.FreezerInfos
+            var result = from info in Models.FreezerInfos
+                         orderby info.Place
                          select new FreezerModel()
                          {
                              Id = info.Id,

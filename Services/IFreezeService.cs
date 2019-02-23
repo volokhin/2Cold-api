@@ -8,6 +8,7 @@ namespace Dfreeze.Services
     public interface IFreezeService
     {
         Task<IEnumerable<FreezerModel>> GetFreezersAsync();
-        Task LoginAsync();
+        Task<IEnumerable<FreezerModel>> EnableAsync(int id);
+        Task<IEnumerable<FreezerModel>> DisableAsync(int id);
     }
 }

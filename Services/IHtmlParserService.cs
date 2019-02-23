@@ -6,7 +6,7 @@ namespace Dfreeze.Services
 {
     public interface IHtmlParserService
     {
-        bool IsLoginPage(string html);
+        PageType GetPageType(string html);
         IEnumerable<FreezerModel> Parse(string html);
     }
 }

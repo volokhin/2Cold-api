@@ -28,16 +28,18 @@ namespace Dfreeze.Controllers
 
         // POST api/freezers/enable/42
         [HttpPost("enable/{id}")]
-        public void Enable(int id)
+        public async Task<JsonResult> Enable(int id)
         {
-
+            var result = await _freezeService.EnableAsync(id);
+            return new JsonResult(result);
         }
 
         // POST api/freezers/disable/42
         [HttpPost("disable/{id}")]
-        public void Disable(int id)
+        public async Task<JsonResult> Disable(int id)
         {
-
+            var result = await _freezeService.DisableAsync(id);
+            return new JsonResult(result);
         }
     }
 }
