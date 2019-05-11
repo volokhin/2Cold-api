@@ -17,15 +17,11 @@ namespace Dfreeze.Services
         private const string LoginUrl = "http://91.192.175.234/screenmate/LoginPage.aspx";
 
         private readonly IHtmlParserService _parser;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private Cookie _cookie;
 
-        private ISession Session => _httpContextAccessor.HttpContext.Session;
-
-        public FreezeService(IHtmlParserService parser,
-                IHttpContextAccessor httpContextAccessor)
+        public FreezeService(IHtmlParserService parser)
         {
             _parser = parser;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<IEnumerable<FreezerModel>> GetFreezersAsync()
@@ -40,54 +36,71 @@ namespace Dfreeze.Services
 
             try
             {
-                return await ExecuteServiceRequest(args);;
+                return await ExecuteServiceRequest(args);
             }
-            catch(UnauthorizedAccessException)
+            catch (UnauthorizedAccessException)
             {
                 await LoginAsync();
-                return await ExecuteServiceRequest(args);;
+                return await ExecuteServiceRequest(args);
             }
         }
 
-        public async Task<IEnumerable<FreezerModel>> EnableAsync(int id)
+        public async Task<IEnumerable<FreezerModel>> SetEnabledAsync(FreezerIdentifier id, bool enabled)
+        {
+            FreezerModel freezer;
+            if (!DefaultState.Freezers.TryGetValue(id, out freezer))
+            {
+                throw new ArgumentException($"No freezer with id {id} found.");
+            }
+            if (enabled)
+            {
+                return await EnableAsync(freezer);
+            }
+            else
+            {
+                return await DisableAsync(freezer);
+            }
+        }
+
+        private async Task<IEnumerable<FreezerModel>> EnableAsync(FreezerModel freezer)
         {
             var args = new Dictionary<string, string>
             {
                 ["roomId"] = "s8236vg",
-                ["__EVENTTARGET"] = $"dataList:_ctl{id}:next",
+                ["__EVENTTARGET"] = $"dataList:_ctl{freezer.ToggleCommandId}:next",
                 ["__EVENTVALIDATION"] = Constants.EnableEventValidation,
                 ["__VIEWSTATE"] = Constants.EnableViewState,
             };
 
             try
             {
-                return await ExecuteServiceRequest(args);;
+                return await ExecuteServiceRequest(args);
             }
-            catch(UnauthorizedAccessException)
+            catch (UnauthorizedAccessException)
             {
                 await LoginAsync();
-                return await ExecuteServiceRequest(args);;
+                return await ExecuteServiceRequest(args);
             }
         }
 
-        public async Task<IEnumerable<FreezerModel>> DisableAsync(int id)
+        private async Task<IEnumerable<FreezerModel>> DisableAsync(FreezerModel freezer)
         {
             var args = new Dictionary<string, string>
             {
                 ["roomId"] = "s8236vg",
-                ["__EVENTTARGET"] = $"dataList:_ctl{id}:previous",
+                ["__EVENTTARGET"] = $"dataList:_ctl{freezer.ToggleCommandId}:previous",
                 ["__EVENTVALIDATION"] = Constants.DisableEventValidation,
                 ["__VIEWSTATE"] = Constants.DisableViewState,
             };
 
             try
             {
-                return await ExecuteServiceRequest(args);;
+                return await ExecuteServiceRequest(args);
             }
-            catch(UnauthorizedAccessException)
+            catch (UnauthorizedAccessException)
             {
                 await LoginAsync();
-                return await ExecuteServiceRequest(args);;
+                return await ExecuteServiceRequest(args);
             }
         }
 
@@ -117,11 +130,7 @@ namespace Dfreeze.Services
                     var cookie = cookies.GetCookies(requestUri)
                         .Cast<Cookie>()
                         .FirstOrDefault(x => x.Name == SessionIdKey);
-
-                    if (cookie != null)
-                    {
-                        Session.SetString(cookie.Name, cookie.Value);
-                    }
+                    _cookie = cookie;
                 }
             }
         }
@@ -136,10 +145,9 @@ namespace Dfreeze.Services
             {
                 handler.CookieContainer = cookies;
 
-                var sessionId = Session.GetString(SessionIdKey);
-                if (!String.IsNullOrEmpty(sessionId))
+                if (_cookie != null)
                 {
-                    cookies.Add(new Cookie(SessionIdKey, sessionId, "/", SessionDomain));
+                    cookies.Add(_cookie);
                 }
 
                 var content = new FormUrlEncodedContent(args);

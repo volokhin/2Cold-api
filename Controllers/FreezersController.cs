@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dfreeze.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Dfreeze.Controllers
 {
@@ -11,34 +12,44 @@ namespace Dfreeze.Controllers
     [ApiController]
     public class FreezersController : ControllerBase
     {
-        private readonly IFreezeService _freezeService;
+        private readonly IFreezerTasksProcessor _processor;
+        private readonly IFreezerStateHolder _stateHolder;
+        private readonly ILogger _logger;
 
-        public FreezersController(IFreezeService freezeService)
+        public FreezersController(IFreezerStateHolder stateHolder,
+            IFreezerTasksProcessor processor,
+            ILogger<FreezersController> logger)
         {
-            _freezeService = freezeService;
+            _stateHolder = stateHolder;
+            _processor = processor;
+            _logger = logger;
         }
 
         // GET api/freezers/list
         [HttpGet("list")]
-        public async Task<JsonResult> List()
+        public JsonResult List()
         {
-            var result = await _freezeService.GetFreezersAsync();
+            var result = _stateHolder.GetFreezers();
             return new JsonResult(result);
         }
 
         // POST api/freezers/enable/42
         [HttpPost("enable/{id}")]
-        public async Task<JsonResult> Enable(int id)
+        public JsonResult Enable(int id)
         {
-            var result = await _freezeService.EnableAsync(id);
+            var task = new FreezerTask(id, 5, true);
+            _processor.Enqueue(task);
+            var result = _stateHolder.GetFreezers();
             return new JsonResult(result);
         }
 
         // POST api/freezers/disable/42
         [HttpPost("disable/{id}")]
-        public async Task<JsonResult> Disable(int id)
+        public JsonResult Disable(int id)
         {
-            var result = await _freezeService.DisableAsync(id);
+            var task = new FreezerTask(id, 5, false);
+            _processor.Enqueue(task);
+            var result = _stateHolder.GetFreezers();
             return new JsonResult(result);
         }
     }

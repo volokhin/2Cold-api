@@ -23,7 +23,7 @@ namespace Dfreeze.Services
                 }
 
                 var isInvalidRoomIdPage = html.Contains("The specified room did not exist");
-                if (isLoginPage)
+                if (isInvalidRoomIdPage)
                 {
                     return PageType.InvalidRoomId;
                 }
@@ -43,17 +43,8 @@ namespace Dfreeze.Services
             var doc = new HtmlDocument();
             doc.LoadHtml(html);
 
-            var result = from info in Models.FreezerInfos
-                         orderby info.Place
-                         select new FreezerModel()
-                         {
-                             Id = info.Id,
-                             Place = info.Place,
-                             Name = info.Name,
-                             ToggleCommandId = info.ToggleCommandId,
-                             IsEnabled = HtmlParserService.IsEnabled(info, doc)
-                         };
-
+            var result = DefaultState.Freezers.Values
+                .Select(x => x.Clone(HtmlParserService.IsEnabled(x, doc)));
             return result;
         }
 
@@ -64,7 +55,7 @@ namespace Dfreeze.Services
                 var toggleId = $"dataList_toggle_{freezer.ToggleCommandId}";
                 var xpath = $"(//a[@id='{toggleId}']/span)[1]";
                 var result = doc.DocumentNode.SelectSingleNode(xpath);
-                return result.InnerHtml == "1";
+                return result?.InnerHtml == "1";
             }
             catch
             {
