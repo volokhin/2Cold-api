@@ -41,7 +41,6 @@ namespace Dfreeze.Services.Background
             {
                 try
                 {
-                    _logger.LogInformation("FreezerBackgroundWorker is working.");
                     var result = await _processor.ProcessNextTaskAsync();
                     if (result != null)
                     {

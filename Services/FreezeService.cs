@@ -24,11 +24,15 @@ namespace Dfreeze.Services
             _parser = parser;
         }
 
-        public async Task<IEnumerable<FreezerModel>> GetFreezersAsync()
+        public async Task<IEnumerable<FreezerModel>> GetFreezersAsync(int floor)
         {
+            if (floor != 5 && floor != 8)
+            {
+                throw new ArgumentException($"There is no 2GIS office on the {floor} floor.");
+            }
             var args = new Dictionary<string, string>
             {
-                ["roomId"] = "s8236vg",
+                ["roomId"] = floor == 5 ? Constants.Room5Floor : Constants.Room8Floor,
                 ["__EVENTTARGET"] = "lookUpRoomId",
                 ["__EVENTVALIDATION"] = Constants.LookupEventValidation,
                 ["__VIEWSTATE"] = Constants.LookupViewState,
@@ -66,10 +70,10 @@ namespace Dfreeze.Services
         {
             var args = new Dictionary<string, string>
             {
-                ["roomId"] = "s8236vg",
+                ["roomId"] = freezer.Floor == 5 ? Constants.Room5Floor : Constants.Room8Floor,
                 ["__EVENTTARGET"] = $"dataList:_ctl{freezer.ToggleCommandId}:next",
-                ["__EVENTVALIDATION"] = Constants.EnableEventValidation,
-                ["__VIEWSTATE"] = Constants.EnableViewState,
+                ["__EVENTVALIDATION"] = freezer.ValidationOn,
+                ["__VIEWSTATE"] = freezer.ViewState,
             };
 
             try
@@ -87,10 +91,10 @@ namespace Dfreeze.Services
         {
             var args = new Dictionary<string, string>
             {
-                ["roomId"] = "s8236vg",
+                ["roomId"] = freezer.Floor == 5 ? Constants.Room5Floor : Constants.Room8Floor,
                 ["__EVENTTARGET"] = $"dataList:_ctl{freezer.ToggleCommandId}:previous",
-                ["__EVENTVALIDATION"] = Constants.DisableEventValidation,
-                ["__VIEWSTATE"] = Constants.DisableViewState,
+                ["__EVENTVALIDATION"] = freezer.ValidationOff,
+                ["__VIEWSTATE"] = freezer.ViewState,
             };
 
             try

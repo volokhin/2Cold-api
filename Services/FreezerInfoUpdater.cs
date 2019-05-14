@@ -25,17 +25,18 @@ namespace Dfreeze.Services.Background
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("FreezerInfoUpdater is starting.");
-            _timer = new Timer(DoWorkAsync, null, TimeSpan.Zero, TimeSpan.FromSeconds(60));
+            _timer = new Timer(DoWorkAsync, null, TimeSpan.Zero, TimeSpan.FromMinutes(60));
             return Task.CompletedTask;
         }
 
         private async void DoWorkAsync(object state)
         {
-            _logger.LogInformation("FreezerInfoUpdater is working.");
             try
             {
-                var freezers = await _freezerService.GetFreezersAsync();
-                _stateHolder.UpdateState(freezers);
+                var freezersOn5 = await _freezerService.GetFreezersAsync(floor: 5);
+                _stateHolder.UpdateState(freezersOn5);
+                var freezersOn8 = await _freezerService.GetFreezersAsync(floor: 8);
+                _stateHolder.UpdateState(freezersOn8);
             }
             catch (Exception ex)
             {

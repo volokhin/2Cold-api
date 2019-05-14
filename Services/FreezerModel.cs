@@ -6,10 +6,19 @@ namespace Dfreeze.Services
     public class FreezerModel
     {
         [JsonIgnore]
-        public int ToggleCommandId { get; private set; }
+        public FreezerIdentifier UniqueId { get; private set; }
 
         [JsonIgnore]
-        public FreezerIdentifier UniqueId { get; private set; }
+        public string ValidationOn { get; private set; }
+
+        [JsonIgnore]
+        public string ValidationOff { get; private set; }
+
+        [JsonIgnore]
+        public string ViewState { get; private set; }
+
+        [JsonIgnore]
+        public int ToggleCommandId { get; private set; }
 
         public int Id { get; private set; }
         public int Floor { get; private set; }
@@ -23,7 +32,8 @@ namespace Dfreeze.Services
 
         }
 
-        public FreezerModel(int id, int floor, string place, string name, int toggleCommandId)
+        public FreezerModel(int id, int floor, string place, string name, int toggleCommandId, 
+            string validationOn, string validationOff, string viewState)
         {
             UniqueId = new FreezerIdentifier(this);
             Id = id;
@@ -33,6 +43,9 @@ namespace Dfreeze.Services
             ToggleCommandId = toggleCommandId;
             IsEnabled = false;
             IsDirty = false;
+            ValidationOn = validationOn;
+            ValidationOff = validationOff;
+            ViewState = viewState;
         }
 
         public FreezerModel Clone()

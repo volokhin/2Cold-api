@@ -6,14 +6,17 @@ namespace Dfreeze.Services
     public struct FreezerIdentifier
     {
         internal int Id { get; private set; }
+        internal int Floor { get; private set; }
 
-        public FreezerIdentifier(int id)
+        public FreezerIdentifier(int floor, int id)
         {
+            Floor = floor;
             Id = id;
         }
 
         public FreezerIdentifier(FreezerModel freezer)
         {
+            Floor = freezer.Floor;
             Id = freezer.Id;
         }
 
@@ -22,19 +25,19 @@ namespace Dfreeze.Services
             if (obj is FreezerIdentifier)
             {
                 var other = (FreezerIdentifier)obj;
-                return Id == other.Id;
+                return Id == other.Id && Floor == other.Floor;
             }
             return base.Equals(obj);
         }
 
         public override int GetHashCode()
         {
-            return Id;
+            return Id ^ Floor;
         }
 
         public override string ToString()
         {
-            return $"{Id}";
+            return $"{Floor}/{Id}";
         }
 
         public static bool operator ==(FreezerIdentifier left, FreezerIdentifier right)

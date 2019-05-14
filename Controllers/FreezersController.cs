@@ -33,21 +33,21 @@ namespace Dfreeze.Controllers
             return new JsonResult(result);
         }
 
-        // POST api/freezers/enable/42
-        [HttpPost("enable/{id}")]
-        public JsonResult Enable(int id)
+        // POST api/freezers/enable/8/42
+        [HttpPost("enable/{floor}/{id}")]
+        public JsonResult Enable(int floor, int id)
         {
-            var task = new FreezerTask(id, 5, true);
+            var task = new FreezerTask(floor, id, true);
             _processor.Enqueue(task);
             var result = _stateHolder.GetFreezers();
             return new JsonResult(result);
         }
 
-        // POST api/freezers/disable/42
-        [HttpPost("disable/{id}")]
-        public JsonResult Disable(int id)
+        // POST api/freezers/disable/5/24
+        [HttpPost("disable/{floor}/{id}")]
+        public JsonResult Disable(int floor, int id)
         {
-            var task = new FreezerTask(id, 5, false);
+            var task = new FreezerTask(floor, id, false);
             _processor.Enqueue(task);
             var result = _stateHolder.GetFreezers();
             return new JsonResult(result);

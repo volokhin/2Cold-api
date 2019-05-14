@@ -8,9 +8,9 @@ namespace Dfreeze.Services
         public FreezerIdentifier FreezerUniqueId { get; private set; }
         public bool IsEnabled { get; set; }
 
-        public FreezerTask(int id, int floor, bool isEnabled)
+        public FreezerTask(int floor, int id, bool isEnabled)
         {
-            FreezerUniqueId = new FreezerIdentifier(id);
+            FreezerUniqueId = new FreezerIdentifier(floor, id);
             IsEnabled = isEnabled;
         }
     }
