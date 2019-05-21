@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Dfreeze.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/ac")]
     [ApiController]
     public class FreezersController : ControllerBase
     {
@@ -25,7 +25,7 @@ namespace Dfreeze.Controllers
             _logger = logger;
         }
 
-        // GET api/freezers/list
+        // GET api/ac/list
         [HttpGet("list")]
         public JsonResult List()
         {
@@ -33,7 +33,7 @@ namespace Dfreeze.Controllers
             return new JsonResult(result);
         }
 
-        // POST api/freezers/enable/8/42
+        // POST api/ac/enable/8/42
         [HttpPost("enable/{floor}/{id}")]
         public JsonResult Enable(int floor, int id)
         {
@@ -43,7 +43,7 @@ namespace Dfreeze.Controllers
             return new JsonResult(result);
         }
 
-        // POST api/freezers/disable/5/24
+        // POST api/ac/disable/5/24
         [HttpPost("disable/{floor}/{id}")]
         public JsonResult Disable(int floor, int id)
         {
