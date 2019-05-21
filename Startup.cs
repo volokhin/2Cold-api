@@ -33,6 +33,7 @@ namespace Dfreeze
             services.AddHttpContextAccessor();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
+            services.AddSingleton<INameGeneratorService, NameGeneratorService>();
             services.AddSingleton<IFreezeService, FreezeService>();
             services.AddSingleton<IHtmlParserService, HtmlParserService>();
             services.AddSingleton<IFreezerStateHolder, FreezerStateHolder>();

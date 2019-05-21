@@ -23,7 +23,7 @@ namespace Dfreeze.Services
         public int Id { get; private set; }
         public int Floor { get; private set; }
         public string Place { get; private set; }
-        public string Name { get; private set; }
+        public string Name { get; set; }
         public bool IsEnabled { get; set; }
         public bool IsDirty { get; set; }
 

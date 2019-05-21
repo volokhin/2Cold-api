@@ -10,12 +10,17 @@ namespace Dfreeze.Services
 {
     public class FreezerStateHolder : IFreezerStateHolder
     {
+        private readonly FreezerIdentifier _kamchatkaId = new FreezerIdentifier(floor: 8, id: 6);
         private readonly IDictionary<FreezerIdentifier, FreezerModel> _state;
         private readonly IFreezerTasksProcessor _processor;
+        private readonly INameGeneratorService _nameGenerator;
 
-        public FreezerStateHolder(IFreezerTasksProcessor processor)
+        
+
+        public FreezerStateHolder(IFreezerTasksProcessor processor, INameGeneratorService nameGenerator)
         {
             _processor = processor;
+            _nameGenerator = nameGenerator;
             lock (this)
             {
                 _state = DefaultState.GetCopy();
@@ -42,6 +47,8 @@ namespace Dfreeze.Services
             lock (this)
             {
                 var state = GetStateCopy();
+                var kamchatka = state[_kamchatkaId];
+                kamchatka.Name = _nameGenerator.GetName();
                 var tasks = _processor.GetTasks();
                 foreach (var task in tasks)
                 {
