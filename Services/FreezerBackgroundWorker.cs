@@ -14,7 +14,7 @@ namespace Dfreeze.Services.Background
 
         public FreezerBackgroundWorker(IFreezerStateHolder stateHolder,
             IFreezerTasksProcessor processor,
-            ILogger<FreezerInfoUpdater> logger)
+            ILogger<FreezerBackgroundWorker> logger)
         {
             _stateHolder = stateHolder;
             _processor = processor;

@@ -38,6 +38,7 @@ namespace Dfreeze
             services.AddSingleton<IHtmlParserService, HtmlParserService>();
             services.AddSingleton<IFreezerStateHolder, FreezerStateHolder>();
             services.AddSingleton<IFreezerTasksProcessor, FreezerTasksProcessor>();
+            services.AddSingleton<IAnalyticsService, AnalyticsService>();
 
             services.AddHostedService<FreezerBackgroundWorker>();
             services.AddHostedService<FreezerInfoUpdater>();

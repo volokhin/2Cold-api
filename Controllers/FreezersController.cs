@@ -14,14 +14,17 @@ namespace Dfreeze.Controllers
     {
         private readonly IFreezerTasksProcessor _processor;
         private readonly IFreezerStateHolder _stateHolder;
+        private readonly IAnalyticsService _analytics;
         private readonly ILogger _logger;
 
         public FreezersController(IFreezerStateHolder stateHolder,
             IFreezerTasksProcessor processor,
+            IAnalyticsService analytics,
             ILogger<FreezersController> logger)
         {
             _stateHolder = stateHolder;
             _processor = processor;
+            _analytics = analytics;
             _logger = logger;
         }
 
@@ -29,6 +32,7 @@ namespace Dfreeze.Controllers
         [HttpGet("list")]
         public JsonResult List()
         {
+            _analytics.SendEvent("List");
             var result = _stateHolder.GetFreezers();
             return new JsonResult(result);
         }
@@ -37,6 +41,7 @@ namespace Dfreeze.Controllers
         [HttpPost("enable/{floor}/{id}")]
         public JsonResult Enable(int floor, int id)
         {
+            TrackToggleAnalytics("on", floor, id);
             var task = new FreezerTask(floor, id, true);
             _processor.Enqueue(task);
             var result = _stateHolder.GetFreezers();
@@ -47,10 +52,33 @@ namespace Dfreeze.Controllers
         [HttpPost("disable/{floor}/{id}")]
         public JsonResult Disable(int floor, int id)
         {
+            TrackToggleAnalytics("off", floor, id);
             var task = new FreezerTask(floor, id, false);
             _processor.Enqueue(task);
             var result = _stateHolder.GetFreezers();
             return new JsonResult(result);
+        }
+
+        private void TrackToggleAnalytics(string toggle, int floor, int id)
+        {
+            FreezerModel freezer;
+            string place = null;
+            string name = null;
+
+            if (DefaultState.Freezers.TryGetValue(new FreezerIdentifier(floor, id), out freezer))
+            {
+                place = freezer.Place;
+                name = freezer.Name;
+            }
+
+            _analytics.SendEvent("Toggle", new Dictionary<string, object>
+            {
+                ["toggle"] = toggle,
+                ["floor"] = floor,
+                ["id"] = id,
+                ["place"] = place ?? "unknown",
+                ["name"] = name ?? "unknown",
+            });
         }
     }
 }
